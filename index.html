@@ -1,0 +1,737 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Shagun Sweets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root {
+  --bg: #170E16;
+  --surface: #221423;
+  --fg: #F6EADB;
+  --muted: #BFAE9C;
+  --accent: #F2AA3F;
+  --rose: #EA7889;
+  --leaf: #A9C47F;
+  --line: rgba(246, 234, 219, .14);
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #FBF3E6; --surface: #F3E6D2; --fg: #2A1A24; --muted: #6E5B60;
+    --accent: #B8650E; --rose: #B43F58; --leaf: #4F7230; --line: rgba(42, 26, 36, .14);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #FBF3E6; --surface: #F3E6D2; --fg: #2A1A24; --muted: #6E5B60;
+  --accent: #B8650E; --rose: #B43F58; --leaf: #4F7230; --line: rgba(42, 26, 36, .14);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 15px; line-height: 1.6; overflow-x: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; text-wrap: balance; margin: 0; }
+p { margin: 0; text-wrap: pretty; }
+button { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.wrap { max-width: 1180px; margin: 0 auto; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.section { padding-block: 96px; }
+.section-head { display: grid; gap: 14px; max-width: 640px; margin-bottom: 48px; }
+.section-head h2 { font-size: clamp(38px, 6vw, 64px); }
+.section-head p { color: var(--muted); font-size: 16px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px;
+  border: 1px solid var(--line); text-decoration: none; font-weight: 600; font-size: 15px; cursor: pointer;
+  background: transparent; color: var(--fg); transition: transform .25s ease, background .25s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: var(--accent); color: #1B1009; border-color: transparent; }
+.btn-ghost:hover { background: var(--surface); }
+
+/* Header */
+.site-head {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
+}
+.site-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 10px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand img { height: 46px; width: auto; border-radius: 6px; }
+.brand-text { font-family: var(--display); font-size: 26px; font-weight: 600; }
+.brand-text em { color: var(--accent); font-style: italic; }
+.nav { display: flex; gap: 22px; align-items: center; }
+.nav a { text-decoration: none; font-size: 14px; color: var(--muted); font-weight: 500; }
+.nav a:hover { color: var(--fg); }
+.nav .btn { padding: 9px 16px; font-size: 13px; color: #1B1009; }
+@media (max-width: 760px) { .nav a:not(.btn) { display: none; } }
+
+/* Hero */
+.hero { position: relative; min-height: min(92svh, 860px); display: grid; align-items: end; overflow: hidden; isolation: isolate; }
+#hero-3d { position: absolute; inset: 0; z-index: -1; }
+#hero-3d canvas { width: 100%; height: 100%; display: block; }
+.hero-video { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; filter: saturate(.9) brightness(.42); }
+.hero-veil {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--bg) 88%, transparent) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 55%, color-mix(in srgb, var(--bg) 20%, transparent) 100%),
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--bg) 60%, transparent) 70%, var(--bg) 100%);
+}
+.hero-fallback {
+  position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(60% 50% at 70% 40%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%),
+              radial-gradient(40% 40% at 20% 80%, color-mix(in srgb, var(--rose) 22%, transparent), transparent 70%);
+}
+.hero-copy { padding-block: 120px 72px; max-width: 720px; display: grid; gap: 24px; text-shadow: 0 2px 24px rgba(0, 0, 0, .45); }
+.hero .btn-ghost { background: color-mix(in srgb, var(--bg) 40%, transparent); }
+.hero-title { font-size: clamp(56px, 10vw, 128px); letter-spacing: -.01em; }
+.hero-title .line { display: block; overflow: hidden; padding-bottom: .06em; }
+.hero-title .line > span { display: inline-block; }
+.hero-title em { color: var(--accent); font-weight: 500; }
+.hero-sub { font-size: 18px; color: var(--muted); max-width: 540px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 12px; }
+.hero-stats div { display: grid; gap: 2px; }
+.hero-stats strong { font-family: var(--display); font-size: 40px; font-weight: 600; line-height: 1; }
+.hero-stats span { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+.hero-scroll { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 28px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); writing-mode: vertical-rl; }
+
+/* Marquee */
+.marquee { border-block: 1px solid var(--line); overflow: hidden; background: var(--surface); }
+.marquee-track { display: flex; gap: 48px; width: max-content; padding-block: 18px; animation: slide 38s linear infinite; }
+.marquee-track span { font-family: var(--display); font-size: 26px; font-style: italic; white-space: nowrap; }
+.marquee-track span::after { content: "/"; margin-left: 48px; color: var(--accent); font-style: normal; }
+@keyframes slide { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+/* Story */
+.story-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: start; }
+@media (max-width: 880px) { .story-grid { grid-template-columns: 1fr; gap: 40px; } }
+.story-photo { border-radius: 24px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 4 / 5; margin-top: 28px; }
+.story-photo img { width: 100%; height: 100%; object-fit: cover; }
+.story-quote { font-family: var(--display); font-size: clamp(26px, 3.2vw, 36px); font-style: italic; line-height: 1.25; }
+.timeline { position: relative; display: grid; padding-left: 28px; }
+.timeline::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--accent), var(--rose)); border-radius: 2px; transform-origin: top; transform: scaleY(var(--line, 1)); }
+.tl-item { position: relative; padding-bottom: 36px; display: grid; gap: 6px; }
+.tl-item::before { content: ""; position: absolute; left: -28px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+.tl-year { font-family: var(--display); font-size: 34px; font-weight: 600; line-height: 1; }
+.tl-item p { color: var(--muted); max-width: 520px; }
+
+/* Cards and plates */
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.card {
+  border-radius: 22px; background: var(--surface); border: 1px solid var(--line); overflow: hidden;
+  display: flex; flex-direction: column; transition: transform .35s ease, border-color .35s ease;
+}
+.card:hover { transform: translateY(-6px); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.plate { aspect-ratio: 4 / 3; position: relative; overflow: hidden; background: var(--surface); }
+.plate img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.card:hover .plate img { transform: scale(1.05); }
+.card-body { padding: 22px 22px 24px; display: grid; gap: 10px; flex: 1; }
+.card-body h3 { font-size: 30px; }
+.card-body p { color: var(--muted); font-size: 14px; }
+.card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; gap: 10px; flex-wrap: wrap; }
+.tag { font-size: 12px; color: var(--leaf); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.text-link { font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+
+/* Gallery */
+.gallery { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-auto-rows: 200px; gap: 14px; }
+.gallery figure { margin: 0; border-radius: 20px; overflow: hidden; position: relative; border: 1px solid var(--line); }
+.gallery figure:first-child { grid-row: span 2; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 760px) { .gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 160px; } .gallery figure:first-child { grid-column: span 2; grid-row: span 1; } }
+
+/* Gifting */
+.gift {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center;
+  padding: clamp(28px, 5vw, 56px); border-radius: 32px; background: var(--surface); border: 1px solid var(--line);
+}
+@media (max-width: 880px) { .gift { grid-template-columns: 1fr; } }
+.gift h2 { font-size: clamp(38px, 5vw, 60px); }
+.gift-list { display: grid; gap: 14px; margin: 24px 0 0; padding: 0; list-style: none; }
+.gift-list li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+.gift-list b { font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.gift-list span { color: var(--muted); }
+.gift-list strong { font-weight: 600; color: var(--fg); }
+.gift-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.gift-visual figure { margin: 0; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
+.gift-visual figure:first-child { grid-row: span 2; }
+.gift-visual img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Quote */
+.quote-wrap { display: grid; justify-items: center; text-align: center; gap: 22px; padding-block: 88px; }
+.quote-wrap blockquote { margin: 0; font-family: var(--display); font-size: clamp(32px, 5vw, 56px); font-style: italic; line-height: 1.15; max-width: 880px; text-wrap: balance; }
+.quote-wrap blockquote::before { content: "\201C"; color: var(--accent); }
+.quote-wrap blockquote::after { content: "\201D"; color: var(--accent); }
+.quote-wrap cite { font-style: normal; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+/* Stores */
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.store {
+  border-radius: 20px; border: 1px solid var(--line); background: var(--surface); overflow: hidden;
+  display: flex; flex-direction: column; text-decoration: none; transition: border-color .25s ease, transform .25s ease;
+}
+.store:hover { border-color: var(--accent); transform: translateY(-3px); }
+.store-photo { aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg); }
+.store-photo img { width: 100%; height: 100%; object-fit: cover; }
+.store-info { padding: 18px 20px 20px; display: grid; gap: 6px; }
+.store strong { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.1; }
+.store span { font-size: 14px; color: var(--muted); }
+.store em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+
+/* Journal */
+.journal { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.journal a { display: grid; gap: 12px; padding: 22px; border-radius: 18px; border: 1px solid var(--line); text-decoration: none; background: var(--surface); }
+.journal a:hover { border-color: var(--accent); }
+.journal b { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1.15; }
+.journal small { color: var(--muted); font-size: 13px; }
+
+/* Visit */
+.visit { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 880px) { .visit { grid-template-columns: 1fr; } }
+.visit-card { padding: 30px; border-radius: 24px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 14px; align-content: start; }
+.visit-card h3 { font-size: 36px; }
+.contact-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.contact-row:last-child { border-bottom: 0; }
+.contact-row span { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
+.contact-row strong { font-size: 17px; font-weight: 600; word-break: break-word; }
+.copy { font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.apps { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Footer */
+.site-foot { border-top: 1px solid var(--line); padding-block: 48px 40px; color: var(--muted); font-size: 14px; }
+.site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: end; }
+.site-foot nav { display: flex; flex-wrap: wrap; gap: 18px; }
+.site-foot a { text-decoration: none; }
+.site-foot a:hover { color: var(--fg); }
+
+@media (max-width: 560px) {
+  .section { padding-block: 72px; }
+  .hero-copy { padding-top: 96px; }
+  .hero-stats strong { font-size: 32px; }
+  .brand img { height: 38px; }
+}
+</style>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Shagun Sweets home">
+      <img src="media/logo.webp" alt="Shagun Sweets logo">
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#story">Our story</a>
+      <a href="#menu">Menu</a>
+      <a href="#gifting">Gifting</a>
+      <a href="#stores">Stores</a>
+      <a href="#visit">Contact</a>
+      <a class="btn btn-primary" href="https://wa.me/919899500566" target="_blank" rel="noopener">WhatsApp us</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-label="Introduction">
+    <video class="hero-video" id="hero-video" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
+    <div class="hero-veil" aria-hidden="true"></div>
+    <div id="hero-3d" aria-hidden="true"></div>
+    <div class="hero-fallback" aria-hidden="true"></div>
+    <div class="wrap hero-copy">
+      <span class="eyebrow">Handcrafted fresh mithai, since 1990</span>
+      <h1 class="hero-title">
+        <span class="line"><span>Mithai, made</span></span>
+        <span class="line"><span><em>the old way.</em></span></span>
+      </h1>
+      <p class="hero-sub">Pure desi ghee sweets from a family sweet shop with 12 stores across Delhi, Ghaziabad and Gurugram. Over 200 varieties, prepared in-house.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#menu">Explore the menu</a>
+        <a class="btn btn-ghost" href="#stores">Find a store</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>1990</strong><span>Founded</span></div>
+        <div><strong>200+</strong><span>Varieties</span></div>
+        <div><strong>12</strong><span>Stores</span></div>
+      </div>
+    </div>
+    <span class="hero-scroll" aria-hidden="true">Scroll</span>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Pure desi ghee</span><span>Handcrafted mithai</span><span>Festive thals</span><span>Gift boxes</span><span>Khoya sweets</span><span>Bengali sweets</span>
+      <span>Pure desi ghee</span><span>Handcrafted mithai</span><span>Festive thals</span><span>Gift boxes</span><span>Khoya sweets</span><span>Bengali sweets</span>
+    </div>
+  </div>
+
+  <section class="section" id="story" aria-labelledby="story-title">
+    <div class="wrap story-grid">
+      <div data-reveal>
+        <span class="eyebrow">Our story</span>
+        <h2 id="story-title" style="font-size:clamp(38px,6vw,64px);margin:14px 0 24px">A brick business that chose sweetness.</h2>
+        <p class="story-quote">"Every bite takes me back to my childhood."</p>
+        <p style="color:var(--muted);margin-top:18px;font-size:14px">Customer, Delhi</p>
+        <figure class="story-photo" style="margin-left:0;margin-right:0">
+          <img src="media/store-ghaziabad-1990.webp" alt="The Shagun Sweets storefront in Ghaziabad with its Since 1990 signboard">
+        </figure>
+      </div>
+      <div class="timeline" data-reveal>
+        <div class="tl-item">
+          <span class="tl-year">1990</span>
+          <p>The idea of Shagun Sweets takes shape when the patriarch of the Bansal family, Mr Rakesh Bansal, moves from brick manufacturing into sweets and fast food.</p>
+        </div>
+        <div class="tl-item">
+          <span class="tl-year">Focus</span>
+          <p>The family narrows its focus to sweets, and the name is chosen from the tradition of starting any good work with a shagun, the sweet offered to mark a beginning.</p>
+        </div>
+        <div class="tl-item">
+          <span class="tl-year">200+</span>
+          <p>Today the kitchen produces more than 200 varieties of delicacies, all prepared in pure desi ghee.</p>
+        </div>
+        <div class="tl-item">
+          <span class="tl-year">Now</span>
+          <p>The same promise, carried online: the taste of tradition delivered to a new generation, with the shop app and website for ordering.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="menu" aria-labelledby="menu-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">The menu</span>
+        <h2 id="menu-title">Four families of sweets, one kitchen.</h2>
+        <p>A short look at the main categories. Each sweet is made in pure desi ghee, the way it was made in the family kitchen.</p>
+      </div>
+      <div class="menu-grid">
+        <article class="card" data-reveal>
+          <div class="plate"><img src="media/sweet-laddu.webp" alt="Pile of golden laddus"></div>
+          <div class="card-body">
+            <span class="tag">Desi ghee sweets</span>
+            <h3>Jodhpuri Ladoo</h3>
+            <p>Classic ghee-rich ladoo, the everyday sweet for celebrations and gifting.</p>
+            <div class="card-foot"><a class="text-link" href="https://wa.me/919899500566" target="_blank" rel="noopener">Ask about price</a></div>
+          </div>
+        </article>
+        <article class="card" data-reveal>
+          <div class="plate"><img src="media/sweet-tray.webp" alt="Assorted sweets in trays"></div>
+          <div class="card-body">
+            <span class="tag">Bengali sweets</span>
+            <h3>Bengali Sweets</h3>
+            <p>Soft, milk-based classics prepared fresh for the counter.</p>
+            <div class="card-foot"><a class="text-link" href="https://wa.me/919899500566" target="_blank" rel="noopener">Ask about price</a></div>
+          </div>
+        </article>
+        <article class="card" data-reveal>
+          <div class="plate"><img src="media/sweet-golden.webp" alt="Golden sweets arranged in a gift box"></div>
+          <div class="card-body">
+            <span class="tag">Khoya sweets</span>
+            <h3>Gulab Jamun</h3>
+            <p>Soft, golden and soaked in syrup. The melt-in-the-mouth classic.</p>
+            <div class="card-foot"><a class="text-link" href="https://wa.me/919899500566" target="_blank" rel="noopener">Ask about price</a></div>
+          </div>
+        </article>
+        <article class="card" data-reveal>
+          <div class="plate"><img src="media/sweet-kaju.webp" alt="Pink cashew sweets on a plate"></div>
+          <div class="card-body">
+            <span class="tag">Kaju sweets</span>
+            <h3>Kaju Specials</h3>
+            <p>Cashew-based sweets, from the classic diamond to fancy shapes.</p>
+            <div class="card-foot"><a class="text-link" href="https://wa.me/919899500566" target="_blank" rel="noopener">Ask about price</a></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="gallery" aria-labelledby="gallery-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Inside the kitchen</span>
+        <h2 id="gallery-title">Boxes, trays and the daily batch.</h2>
+      </div>
+      <div class="gallery" data-reveal>
+        <figure><img src="media/sweet-tray.webp" alt="Sweets arranged in trays"></figure>
+        <figure><img src="media/sweet-laddu.webp" alt="Laddus"></figure>
+        <figure><img src="media/sweet-kaju.webp" alt="Kaju sweets"></figure>
+        <figure><img src="media/sweet-golden.webp" alt="Golden sweets in a box"></figure>
+        <figure><img src="media/sweet-cake.webp" alt="Sweet cake"></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="gifting" aria-labelledby="gift-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="gift" data-reveal>
+        <div>
+          <span class="eyebrow">Gifting and festive orders</span>
+          <h2 id="gift-title" style="margin:14px 0 4px">Boxes for every occasion.</h2>
+          <ul class="gift-list">
+            <li><b>01</b><span><strong>MDF boxes.</strong> Sturdy, decorated gift boxes that carry a mixed assortment.</span></li>
+            <li><b>02</b><span><strong>Kaju fancy boxes.</strong> Cashew sweets arranged for weddings, Diwali and gifting season.</span></li>
+            <li><b>03</b><span><strong>Chappan Bhog thal.</strong> A festive thal with a spread of mithai, the way it is served for a big celebration.</span></li>
+          </ul>
+          <div class="hero-cta" style="margin-top:28px">
+            <a class="btn btn-primary" href="https://wa.me/919899500566" target="_blank" rel="noopener">Plan a gift order</a>
+          </div>
+        </div>
+        <div class="gift-visual">
+          <figure><img src="media/gift-box-open.webp" alt="Open gift box filled with sweets"></figure>
+          <figure><img src="media/sweet-tray.webp" alt="Sweets in trays"></figure>
+          <figure><img src="media/sweet-golden.webp" alt="Gift box of sweets"></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote-wrap" aria-label="Customer quote">
+    <blockquote>Shagun Sweets has mastered the art of keeping flavors authentic yet fresh.</blockquote>
+    <cite>Roy Verma, Delhi</cite>
+  </section>
+
+  <section class="section" id="stores" aria-labelledby="stores-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Our stores</span>
+        <h2 id="stores-title">Twelve stores across the region.</h2>
+        <p>Walk in, call ahead, or message us on WhatsApp. Tap any store to open it in Maps.</p>
+      </div>
+      <div class="store-grid">
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Ram+Nagar+Nehru+Nagar+III+Ghaziabad" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-ghaziabad-1990.webp" alt="Ghaziabad store"></div><div class="store-info"><strong>Nehru Nagar</strong><span>Ram Nagar, Ambedkar Road, Nehru Nagar III, Ghaziabad</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Panchsheel+Park+Sector+4+Sahibabad+Ghaziabad" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-sahibabad.webp" alt="Sahibabad store"></div><div class="store-info"><strong>Sahibabad</strong><span>Panchsheel Park, Sector 4, near the metro pillar, Sahibabad</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Jyoti+Colony+100+ft+Road+Shahdara+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-durgapuri.webp" alt="Durgapuri Chowk store"></div><div class="store-info"><strong>Jyoti Colony</strong><span>100 ft Road, near Durgapuri, Shahdara, Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Vijay+Park+Yamuna+Vihar+Shahdara+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-yamuna-vihar.webp" alt="Yamuna Vihar store"></div><div class="store-info"><strong>Yamuna Vihar</strong><span>Vijay Park, Asha Ram Tyagi Marg, Shahdara, Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Gurunanak+Pura+Laxmi+Nagar+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-laxmi-nagar.webp" alt="Laxmi Nagar store"></div><div class="store-info"><strong>Laxmi Nagar</strong><span>Gurunanak Pura, Veer Savarkar Block, Laxmi Nagar, Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Krishna+Nagar+Lajpat+Rai+Chowk+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-krishna-nagar.webp" alt="Krishna Nagar store"></div><div class="store-info"><strong>Krishna Nagar</strong><span>Lajpat Rai Chowk, Krishna Nagar, Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Sehani+Khurd+Raj+Nagar+Extension+Ghaziabad" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-raj-nagar-ext.webp" alt="Raj Nagar Extension store"></div><div class="store-info"><strong>Raj Nagar Extension</strong><span>Sehani Khurd, Raj Nagar Extension, Ghaziabad</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=P+and+T+Colony+Raj+Nagar+Ghaziabad" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-rdc-raj-nagar.webp" alt="RDC Raj Nagar store"></div><div class="store-info"><strong>Raj Nagar</strong><span>Block 1, P and T Colony, Raj Nagar, Ghaziabad</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Brij+Puri+Gokalpur+Wazirabad+Road+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-brijpuri.webp" alt="Brijpuri store"></div><div class="store-info"><strong>Gokalpur</strong><span>Wazirabad Road, Brij Puri, Gokalpur, Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Central+Road+Jangpura+Bhogal+New+Delhi" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-bhogal.webp" alt="Bhogal Jangpura store"></div><div class="store-info"><strong>Bhogal</strong><span>33 Central Road, Jangpura, Bhogal, New Delhi</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Maharaja+Agarsain+Marg+Vasundhara+Ghaziabad" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-vasundhara.webp" alt="Vasundhara store"></div><div class="store-info"><strong>Vasundhara</strong><span>Maharaja Agarsain Marg, Pocket B, Sector 16, Ghaziabad</span><em>Open in Maps</em></div></a>
+        <a class="store" href="https://www.google.com/maps/search/?api=1&query=Huda+Market+Sector+46+Gurugram" target="_blank" rel="noopener"><div class="store-photo"><img src="media/store-gurugram.webp" alt="Gurugram store"></div><div class="store-info"><strong>Gurugram</strong><span>Huda Market, Huda Colony, Sector 46, Gurugram</span><em>Open in Maps</em></div></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="journal" aria-labelledby="journal-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Journal</span>
+        <h2 id="journal-title">Stories from the kitchen.</h2>
+      </div>
+      <div class="journal" data-reveal>
+        <a href="https://www.shagunsweets.co/blog/the-art-of-mithai:-how-traditional-indian-sweets-are-made" target="_blank" rel="noopener"><small>Blog</small><b>The Art of Mithai: How Traditional Indian Sweets are Made</b><small>Read on the website</small></a>
+        <a href="https://www.shagunsweets.co/blog/exploring-india’s-sweet-heritage:-iconic-sweets-from-every-state" target="_blank" rel="noopener"><small>Blog</small><b>Exploring India's Sweet Heritage</b><small>Read on the website</small></a>
+        <a href="https://www.shagunsweets.co/blog/shagun-sweets-delhi-wedding-bhaji-boxes-premium-sweets-shop" target="_blank" rel="noopener"><small>Blog</small><b>Wedding Bhaji Boxes and Premium Sweets</b><small>Read on the website</small></a>
+        <a href="https://www.shagunsweets.co/blog/best-sweet-shop-in-delhi-ghaziabad-shagun-sweets" target="_blank" rel="noopener"><small>Blog</small><b>Sweets, Namkeen and Festive Specials</b><small>Read on the website</small></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="visit" aria-labelledby="visit-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Visit or reach out</span>
+        <h2 id="visit-title">Say hello.</h2>
+        <p>Tap a number or address to copy it. WhatsApp is the fastest way to ask about orders.</p>
+      </div>
+      <div class="visit">
+        <div class="visit-card" data-reveal>
+          <h3>Contact</h3>
+          <div class="contact-row"><div><span>Phone</span><br><strong>+91 98995 00566</strong></div><button class="copy" data-copy="+91 98995 00566">Copy</button></div>
+          <div class="contact-row"><div><span>Email</span><br><strong>helpdeskshagunsweets@gmail.com</strong></div><button class="copy" data-copy="helpdeskshagunsweets@gmail.com">Copy</button></div>
+          <div class="contact-row"><div><span>WhatsApp</span><br><strong>Chat with the shop</strong></div><a class="btn btn-primary" href="https://wa.me/919899500566" target="_blank" rel="noopener">Open chat</a></div>
+        </div>
+        <div class="visit-card" data-reveal>
+          <h3>Get the app</h3>
+          <p style="color:var(--muted)">Browse the full range, order, and track on the Shagun app.</p>
+          <div class="apps">
+            <a class="btn btn-ghost" href="https://play.google.com/store/apps/details?id=com.zopping.shagun" target="_blank" rel="noopener">Google Play</a>
+            <a class="btn btn-ghost" href="https://apps.apple.com/in/app/shagun/id6748668075" target="_blank" rel="noopener">App Store</a>
+          </div>
+          <p style="color:var(--muted);font-size:14px;margin-top:10px">Follow along on <a href="https://www.instagram.com/shagunsweetsofficial" target="_blank" rel="noopener" style="color:var(--accent)">Instagram</a> and <a href="https://www.facebook.com/share/1E3Kw9Y8Gn/" target="_blank" rel="noopener" style="color:var(--accent)">Facebook</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><img src="media/logo.webp" alt="Shagun Sweets logo"></a>
+      <p style="margin-top:8px">© Shagun Sweets 2026. All rights reserved.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="#story">About</a>
+      <a href="#menu">Menu</a>
+      <a href="#stores">Stores</a>
+      <a href="#visit">Contact</a>
+      <a href="https://www.shagunsweets.co/pages/privacy" target="_blank" rel="noopener">Privacy</a>
+      <a href="https://www.shagunsweets.co/pages/terms" target="_blank" rel="noopener">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+/* Hero background: one of the brand's sweet videos, picked at random on each visit. */
+(function () {
+  var v = document.getElementById('hero-video');
+  if (!v) return;
+  var clips = ['media/bg-gulab-jamun.mp4', 'media/bg-kaju-fancy.mp4', 'media/bg-mdf-box.mp4'];
+  var pick = clips[Math.floor(Math.random() * clips.length)];
+  v.src = pick;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { v.removeAttribute('autoplay'); v.pause(); return; }
+  var p = v.play();
+  if (p && p.catch) p.catch(function () { v.hidden = true; });
+})();
+
+/* 3D hero: a small tray of mithai built from primitives, with pointer parallax. */
+(function () {
+  var host = document.getElementById('hero-3d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!host || !window.THREE) return;
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+  catch (e) { host.hidden = true; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x000000, 0);
+  host.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  camera.position.set(0, 0.4, 9.5);
+  scene.add(new THREE.AmbientLight(0xffdcae, 0.55));
+  var key = new THREE.DirectionalLight(0xfff0d6, 2.4); key.position.set(4, 5, 6); scene.add(key);
+  var rim = new THREE.PointLight(0xea7889, 9, 16); rim.position.set(-5, -2, 3); scene.add(rim);
+
+  var mats = {
+    saffron: new THREE.MeshPhysicalMaterial({ color: 0xf2aa3f, roughness: 0.32, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
+    rose:    new THREE.MeshPhysicalMaterial({ color: 0xea7889, roughness: 0.38, clearcoat: 0.4 }),
+    pista:   new THREE.MeshPhysicalMaterial({ color: 0xa9c47f, roughness: 0.5 }),
+    barfi:   new THREE.MeshStandardMaterial({ color: 0xf3e3c3, roughness: 0.6 }),
+    gold:    new THREE.MeshStandardMaterial({ color: 0xf7c95c, metalness: 0.7, roughness: 0.25 }),
+    brown:   new THREE.MeshPhysicalMaterial({ color: 0xb8651c, roughness: 0.4, clearcoat: 0.5 })
+  };
+  var group = new THREE.Group(); scene.add(group);
+  var items = [];
+  function add(geo, mat, pos, speed, rot) {
+    var m = new THREE.Mesh(geo, mat);
+    m.position.set(pos[0], pos[1], pos[2]);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+    m.userData = { speed: speed, base: pos.slice(), phase: Math.random() * 6.28 };
+    group.add(m); items.push(m);
+  }
+  add(new THREE.CylinderGeometry(1.7, 1.7, 0.1, 72), mats.gold, [0.6, -1.5, -1.6], 0.25, [1.1, 0.2, 0]);
+  add(new THREE.SphereGeometry(0.72, 56, 40), mats.saffron, [-1.9, 0.9, 0.2], 0.6);
+  add(new THREE.SphereGeometry(0.48, 48, 32), mats.brown, [-0.5, 1.9, -0.8], 0.8);
+  add(new THREE.SphereGeometry(0.5, 48, 32), mats.saffron, [0.8, 1.0, 0.4], 0.5);
+  add(new THREE.BoxGeometry(1.6, 0.5, 1.05), mats.barfi, [2.1, -0.9, 0.6], 0.45, [0, 0.35, 0.1]);
+  add(new THREE.BoxGeometry(0.85, 0.1, 0.85), mats.pista, [-2.6, -1.4, 0.8], 0.9, [0.3, 0.7, 0.5]);
+  add(new THREE.BoxGeometry(0.7, 0.1, 0.7), mats.barfi, [1.1, 2.3, 0.2], 0.7, [0.2, 0.4, 1.2]);
+  add(new THREE.TorusGeometry(0.55, 0.16, 28, 72), mats.saffron, [2.7, 1.8, -0.5], 0.9, [0.6, 0.4, 0]);
+  add(new THREE.SphereGeometry(0.4, 40, 28), mats.brown, [-0.1, -0.6, 1.2], 0.55);
+  add(new THREE.OctahedronGeometry(0.22), mats.pista, [-3.2, 1.8, -0.6], 1.1);
+  add(new THREE.OctahedronGeometry(0.18), mats.pista, [3.4, -1.9, 0.3], 1.0);
+
+  function resize() {
+    var w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w < 600 ? 12 : 9.5;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var target = { x: 0, y: 0 };
+  window.addEventListener('pointermove', function (e) {
+    target.x = (e.clientX / window.innerWidth - 0.5) * 0.6;
+    target.y = (e.clientY / window.innerHeight - 0.5) * 0.4;
+  }, { passive: true });
+
+  var clock = new THREE.Clock();
+  function frame() {
+    var t = clock.getElapsedTime();
+    items.forEach(function (m) {
+      var s = m.userData.speed, b = m.userData.base, p = m.userData.phase;
+      m.position.y = b[1] + Math.sin(t * s + p) * 0.18;
+      m.rotation.y += 0.004 * s;
+    });
+    group.rotation.y += (target.x - group.rotation.y) * 0.04;
+    group.rotation.x += (target.y - group.rotation.x) * 0.04;
+    renderer.render(scene, camera);
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* Motion: hero intro and scroll reveals. Content is readable without them. */
+(function () {
+  if (!window.gsap) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  /* Hero intro: headline rises line by line, supporting copy follows. */
+  var intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  intro.from('.hero-title .line > span', { yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.12 })
+       .from('.hero-copy .eyebrow', { opacity: 0, y: 12, duration: 0.6 }, '-=0.7')
+       .from('.hero-sub', { opacity: 0, y: 18, duration: 0.8 }, '-=0.5')
+       .from('.hero-cta .btn', { opacity: 0, y: 16, duration: 0.6, stagger: 0.1 }, '-=0.5')
+       .from('.hero-stats > div', { opacity: 0, y: 14, duration: 0.6, stagger: 0.1 }, '-=0.4')
+       .from('.site-head', { yPercent: -100, duration: 0.8, ease: 'power2.out', clearProps: 'transform' }, 0);
+
+  /* Marquee: a little speed-up on scroll, then back to rest. */
+  var marqueeTrack = document.querySelector('.marquee-track');
+
+  if (window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Hero: content drifts up and fades as you scroll away. */
+    gsap.to('.hero-copy', {
+      yPercent: -18, opacity: 0.55, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+    gsap.to('#hero-3d', {
+      yPercent: 12, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+
+    /* Generic reveal for section heads and blocks. */
+    gsap.utils.toArray('.section-head, .story-quote, .gift, .visit-card, .gallery').forEach(function (el) {
+      gsap.from(el, {
+        opacity: 0, y: 40, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+      });
+    });
+
+    /* Story timeline: the vertical line draws down as you scroll, items slide in. */
+    var tl = document.querySelector('.timeline');
+    if (tl) {
+      gsap.fromTo(tl, { '--line': 0 }, {
+        '--line': 1, ease: 'none',
+        scrollTrigger: { trigger: tl, start: 'top 75%', end: 'bottom 60%', scrub: true }
+      });
+      gsap.from('.tl-item', {
+        opacity: 0, x: -24, duration: 0.8, stagger: 0.15, ease: 'power3.out',
+        scrollTrigger: { trigger: tl, start: 'top 80%', toggleActions: 'play none none none' }
+      });
+    }
+
+    /* Story photo: gentle parallax inside its frame. */
+    gsap.fromTo('.story-photo img', { yPercent: -8 }, {
+      yPercent: 8, ease: 'none',
+      scrollTrigger: { trigger: '.story-photo', start: 'top bottom', end: 'bottom top', scrub: true }
+    });
+
+    /* Menu cards: staggered rise, then the photo settles in. */
+    gsap.from('.menu-grid .card', {
+      opacity: 0, y: 60, rotateX: -8, transformOrigin: '50% 100%', duration: 1, stagger: 0.14, ease: 'power3.out',
+      scrollTrigger: { trigger: '.menu-grid', start: 'top 82%', toggleActions: 'play none none none' }
+    });
+    gsap.utils.toArray('.plate img').forEach(function (img) {
+      gsap.fromTo(img, { scale: 1.25 }, {
+        scale: 1, duration: 1.4, ease: 'power2.out',
+        scrollTrigger: { trigger: img, start: 'top 90%', toggleActions: 'play none none none' }
+      });
+    });
+
+    /* Gallery tiles: each one drifts at a slightly different speed. */
+    gsap.utils.toArray('.gallery figure').forEach(function (fig, i) {
+      gsap.to(fig, {
+        y: (i % 2 === 0 ? -30 : 30), ease: 'none',
+        scrollTrigger: { trigger: '.gallery', start: 'top bottom', end: 'bottom top', scrub: 0.6 }
+      });
+    });
+
+    /* Gift list: items step in one after another. */
+    gsap.from('.gift-list li', {
+      opacity: 0, x: 24, duration: 0.7, stagger: 0.12, ease: 'power3.out',
+      scrollTrigger: { trigger: '.gift-list', start: 'top 85%', toggleActions: 'play none none none' }
+    });
+    gsap.from('.gift-visual figure', {
+      opacity: 0, scale: 0.92, duration: 1, stagger: 0.12, ease: 'back.out(1.4)',
+      scrollTrigger: { trigger: '.gift-visual', start: 'top 85%', toggleActions: 'play none none none' }
+    });
+
+    /* Quote: words light up in sequence. */
+    var quote = document.querySelector('.quote-wrap blockquote');
+    if (quote) {
+      var words = quote.textContent.trim().split(/\s+/);
+      quote.innerHTML = words.map(function (w) {
+        return '<span class="qw" style="display:inline-block;opacity:.2">' + w + '</span>';
+      }).join(' ');
+      gsap.to('.qw', {
+        opacity: 1, duration: 0.5, stagger: 0.06, ease: 'none',
+        scrollTrigger: { trigger: quote, start: 'top 80%', end: 'bottom 55%', scrub: true }
+      });
+    }
+
+    /* Stores: cards cascade in from a small scale. */
+    gsap.from('.store', {
+      opacity: 0, y: 30, scale: 0.96, duration: 0.8, stagger: { each: 0.06, from: 'start' }, ease: 'power3.out',
+      scrollTrigger: { trigger: '.store-grid', start: 'top 85%', toggleActions: 'play none none none' }
+    });
+
+    /* Journal and contact cards. */
+    gsap.from('.journal a', {
+      opacity: 0, y: 24, duration: 0.7, stagger: 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.journal', start: 'top 85%', toggleActions: 'play none none none' }
+    });
+    gsap.from('.contact-row', {
+      opacity: 0, x: -16, duration: 0.6, stagger: 0.08, ease: 'power2.out',
+      scrollTrigger: { trigger: '.visit', start: 'top 80%', toggleActions: 'play none none none' }
+    });
+
+    /* Footer brand rises in last. */
+    gsap.from('.site-foot .brand img, .site-foot p', {
+      opacity: 0, y: 16, duration: 0.8, stagger: 0.1, ease: 'power2.out',
+      scrollTrigger: { trigger: '.site-foot', start: 'top 92%', toggleActions: 'play none none none' }
+    });
+
+    /* Header: thins and gains a border once the page moves. */
+    ScrollTrigger.create({
+      start: 40,
+      onUpdate: function (self) {
+        var head = document.querySelector('.site-head');
+        if (head) head.style.boxShadow = self.progress > 0 ? '0 10px 30px -20px rgba(0,0,0,.6)' : 'none';
+      }
+    });
+  }
+
+  /* Hover micro-interactions for the buttons (desktop pointers only). */
+  if (window.matchMedia('(hover: hover)').matches) {
+    gsap.utils.toArray('.btn').forEach(function (btn) {
+      btn.addEventListener('pointerenter', function () { gsap.to(btn, { scale: 1.04, duration: 0.3, ease: 'power2.out' }); });
+      btn.addEventListener('pointerleave', function () { gsap.to(btn, { scale: 1, duration: 0.4, ease: 'power2.out' }); });
+    });
+  }
+})();
+
+/* Copy buttons: clipboard can be refused in some viewers, so fall back to a hint. */
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var value = btn.getAttribute('data-copy');
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); };
+    try {
+      navigator.clipboard.writeText(value).then(done, function () { btn.textContent = 'Select text'; });
+    } catch (e) { btn.textContent = 'Select text'; }
+  });
+});
+</script>
